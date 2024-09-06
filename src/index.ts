@@ -1,6 +1,6 @@
 import { NFA } from "./nfa";
 
-const regex: string = "(a|b)*abb(a|b)*";
+const regex: string = "a|b";
 
 const nfa = new NFA(regex);
-console.log(nfa);
+console.log(nfa.cytograph());
