@@ -46,7 +46,7 @@ export abstract class Automaton<T> {
   abstract build(data: T): [State, State];
 
   /**
-   * Return the set of states and edges in the automaton in a cytograph compatible format
+   * Return the set of states and edges in the automaton in a Cytoscape-compatible format
    */
   cytograph() {
     const visited = new Set();
