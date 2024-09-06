@@ -32,15 +32,15 @@ export class NFA {
   public initial_state: State;
   public accept_state: State;
 
-  constructor(st: SyntaxTreeNode) {
-    [this.initial_state, this.accept_state] = this.build(st);
+  constructor(regex: string) {
+    [this.initial_state, this.accept_state] = this.build(regex);
   }
 
   /**
    * Build the NFA from the syntax tree using Thompson's construction
    * https://en.wikipedia.org/wiki/Thompson%27s_construction
    */
-  build(st: SyntaxTreeNode) {
+  build(regex: string) {
     function generateGraph(st_node: SyntaxTreeNode, initial_state: State) {
       let letter: string,
         next_state: State,
@@ -124,6 +124,9 @@ export class NFA {
           break;
       }
     }
+
+    // Regex syntax tree
+    const st = parseRegex(regex);
 
     // Global labeling
     let label = 0;
