@@ -9,6 +9,11 @@ export interface SyntaxTreeNode {
 
 /**
  * Parse a regular expression into a syntax tree.
+ *
+ * Originally from:
+ * https://github.com/CyberZHG/toolbox/blob/gh-pages/js/lexical.js
+ *
+ * This function was modified for this project.
  */
 export function parseRegex(regex: string): SyntaxTreeNode {
   function parseSub(
