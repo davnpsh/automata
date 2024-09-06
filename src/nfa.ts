@@ -1,32 +1,5 @@
 import { parseRegex, SyntaxTreeNode } from "./regex";
-
-export class State {
-  public label: number;
-  public next: Array<Edge>;
-
-  constructor(label: number) {
-    this.label = label;
-    this.next = [];
-  }
-
-  /**
-   * Add a new edge to the state
-   */
-  addNext(letter: string, state: State) {
-    let edge = new Edge(letter, state);
-    this.next.push(edge);
-  }
-}
-
-class Edge {
-  public letter: string;
-  public to: State;
-
-  constructor(letter: string, to: State) {
-    this.letter = letter;
-    this.to = to;
-  }
-}
+import { State } from "./automaton";
 
 export class NFA {
   public initial_state: State;
@@ -50,6 +23,15 @@ export class NFA {
         accept_state: State;
 
       switch (st_node.type) {
+        case "empty":
+          accept_state = new State(++label);
+
+          initial_state.addNext("ϵ", accept_state);
+
+          // Return accept state
+          return accept_state;
+
+          break;
         //
         // (initial_state) ----- a -----> (accept_state)
         case "text":
@@ -127,6 +109,7 @@ export class NFA {
 
     // Regex syntax tree
     const st = parseRegex(regex);
+    console.log(st);
 
     // Global labeling
     let label = 0;
