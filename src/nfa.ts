@@ -1,19 +1,16 @@
 import { parseRegex, SyntaxTreeNode } from "./regex";
-import { State } from "./automaton";
+import { State, Automaton } from "./automaton";
 
-export class NFA {
-  public initial_state: State;
-  public accept_state: State;
-
+export class NFA extends Automaton {
   constructor(regex: string) {
-    [this.initial_state, this.accept_state] = this.build(regex);
+    super(regex);
   }
 
   /**
    * Build the NFA from the syntax tree using Thompson's construction
    * https://en.wikipedia.org/wiki/Thompson%27s_construction
    */
-  build(regex: string) {
+  build(regex: string): [State, State] {
     function generateGraph(st_node: SyntaxTreeNode, initial_state: State) {
       let letter: string,
         next_state: State,
@@ -109,7 +106,6 @@ export class NFA {
 
     // Regex syntax tree
     const st = parseRegex(regex);
-    console.log(st);
 
     // Global labeling
     let label = 0;

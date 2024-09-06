@@ -27,3 +27,14 @@ class Edge {
     this.to = to;
   }
 }
+
+export abstract class Automaton {
+  public initial_state: State;
+  public accept_state: State;
+
+  constructor(regex: string) {
+    [this.initial_state, this.accept_state] = this.build(regex);
+  }
+
+  abstract build(regex: string): [State, State];
+}
