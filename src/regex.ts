@@ -92,9 +92,6 @@ export function parseRegex(regex: string): SyntaxTreeNode {
             begin + i,
             true,
           );
-          if (typeof sub === "string") {
-            return sub; // Return error if any
-          }
           sub.begin -= 1;
           sub.end += 1;
           parts.push(sub); // Add parsed subexpression to parts
@@ -115,36 +112,24 @@ export function parseRegex(regex: string): SyntaxTreeNode {
           if (parts.length === 0) {
             throw new Error("Unexpected + at " + (begin + i) + ".");
           }
-          virNode = {
-            begin: parts[parts.length - 1].begin,
-            end: parts[parts.length - 1].end + 1,
-          };
-          virNode.type = "star";
-          virNode.sub = parts[parts.length - 1];
           tempNode = {
             begin: parts[parts.length - 1].begin,
             end: parts[parts.length - 1].end + 1,
           };
-          tempNode.type = "cat";
-          tempNode.parts = [parts[parts.length - 1], virNode];
-          parts[parts.length - 1] = tempNode; // Replace last part with concatenated plus node
+          tempNode.type = "plus";
+          tempNode.sub = parts[parts.length - 1];
+          parts[parts.length - 1] = tempNode; // Replace last part with plus node
         } else if (text[i] === "?") {
           // Handle question mark operator
           if (parts.length === 0) {
             throw new Error("Unexpected + at " + (begin + i) + ".");
           }
-          virNode = {
-            begin: parts[parts.length - 1].begin,
-            end: parts[parts.length - 1].end + 1,
-          };
-          virNode.type = "empty";
-          virNode.sub = parts[parts.length - 1];
           tempNode = {
             begin: parts[parts.length - 1].begin,
             end: parts[parts.length - 1].end + 1,
           };
-          tempNode.type = "or";
-          tempNode.parts = [parts[parts.length - 1], virNode];
+          tempNode.type = "optional";
+          tempNode.sub = parts[parts.length - 1];
           parts[parts.length - 1] = tempNode; // Replace last part with optional node
         } else if (text[i] === "ϵ") {
           // Handle epsilon (empty string)

@@ -66,7 +66,7 @@ export abstract class Automaton<T> {
           data: {
             source: state.label,
             target: edge.to.label,
-            label: edge.letter,
+            label: edge.symbol,
           },
         });
         DFS(edge.to);

@@ -77,6 +77,8 @@ export class NFA extends Automaton<string> {
           break;
         //
         case "star":
+        case "plus":
+        case "optional":
           // (initial_state) ----- ϵ -----> (temp_initial_state)
           let temp_initial_state = new State(++label);
           initial_state.addNext("ϵ", temp_initial_state);
@@ -87,16 +89,22 @@ export class NFA extends Automaton<string> {
             temp_initial_state,
           ) as State;
 
-          // (temp_accept_state) ----- ϵ -----> (temp_initial_state)
-          temp_accept_state.addNext("ϵ", temp_initial_state);
+          // Only for "star" or "plus"
+          if (st_node.type == "star" || st_node.type == "plus") {
+            // (temp_accept_state) ----- ϵ -----> (temp_initial_state)
+            temp_accept_state.addNext("ϵ", temp_initial_state);
+          }
 
           accept_state = new State(++label);
 
           // (temp_last_state) ----- ϵ -----> (accept_state)
           temp_accept_state.addNext("ϵ", accept_state);
 
-          // (initial_state) ----- ϵ -----> (accept_state)
-          initial_state.addNext("ϵ", accept_state);
+          // Only for "star" and "optional"
+          if (st_node.type == "star" || st_node.type == "optional") {
+            // (initial_state) ----- ϵ -----> (accept_state)
+            initial_state.addNext("ϵ", accept_state);
+          }
 
           return accept_state;
 
