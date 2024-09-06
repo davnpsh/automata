@@ -1,7 +1,7 @@
 import { parseRegex, SyntaxTreeNode } from "./regex";
 import { State, Automaton } from "./automaton";
 
-export class NFA extends Automaton {
+export class NFA extends Automaton<string> {
   constructor(regex: string) {
     super(regex);
   }

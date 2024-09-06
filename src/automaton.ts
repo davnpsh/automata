@@ -28,13 +28,13 @@ class Edge {
   }
 }
 
-export abstract class Automaton {
+export abstract class Automaton<T> {
   public initial_state: State;
   public accept_state: State;
 
-  constructor(regex: string) {
-    [this.initial_state, this.accept_state] = this.build(regex);
+  constructor(data: T) {
+    [this.initial_state, this.accept_state] = this.build(data);
   }
 
-  abstract build(regex: string): [State, State];
+  abstract build(data: T): [State, State];
 }
