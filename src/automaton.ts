@@ -20,7 +20,7 @@ export class State {
    * @param symbol Symbol of the alphabet associeted with the edge
    * @param state State to which the edge is pointing
    */
-  addNext(symbol: string, state: State): void {
+  public addNext(symbol: string, state: State): void {
     let edge = new Edge(symbol, state);
     this.next.push(edge);
   }
@@ -61,12 +61,12 @@ export abstract class Automaton<T> {
    * @param data Data to build the automaton from
    * @returns [initial_state, accept_state]
    */
-  abstract build(data: T): [State, State];
+  protected abstract build(data: T): [State, State];
 
   /**
    * @returns The set of states and edges in the automaton in a Cytoscape-compatible format
    */
-  cytograph(): object[] {
+  public cytograph(): object[] {
     const visited = new Set();
     const states: object[] = [];
     const edges: object[] = [];

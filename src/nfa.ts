@@ -16,7 +16,7 @@ export class NFA extends Automaton<string> {
    * https://en.wikipedia.org/wiki/Thompson%27s_construction
    * @param expression - The regex expression to be converted to NFA
    */
-  build(expression: string): [State, State] {
+  protected build(expression: string): [State, State] {
     function generateGraph(st_node: SyntaxTreeNode, initial_state: State) {
       let letter: string,
         next_state: State,
@@ -133,7 +133,7 @@ export class NFA extends Automaton<string> {
    * @param symbol - The symbol to be used for enclosure
    * @returns The set of states reachable from the given states
    */
-  enclosure(T: State | State[], symbol: string = "ϵ"): State[] {
+  public enclosure(T: State | State[], symbol: string = "ϵ"): State[] {
     const reacheable_states = new Set<State>();
 
     // Use depth-first search algorithm
@@ -161,9 +161,12 @@ export class NFA extends Automaton<string> {
   }
 
   /**
-   *
+   * Move the automaton with states.
+   * @param T - The state or states to be enclosed
+   * @param symbol - The symbol to be used for the move
+   * @returns The set of states reachable from the given states
    */
-  move(T: State | State[], symbol: string): State[] {
+  public move(T: State | State[], symbol: string): State[] {
     const reacheable_states = new Set<State>();
 
     function lookUp(state: State) {

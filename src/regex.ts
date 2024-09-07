@@ -29,8 +29,9 @@ export class RegExp {
    * https://github.com/CyberZHG/toolbox/blob/gh-pages/js/lexical.js
    *
    * This function was modified for this project.
+   @returns The syntax tree of the regular expression
    */
-  parse(): SyntaxTreeNode {
+  protected parse(): SyntaxTreeNode {
     function parseSub(
       text: string,
       begin: number,
