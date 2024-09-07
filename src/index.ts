@@ -3,4 +3,6 @@ import { NFA } from "./nfa";
 const regex: string = "(a|b)*abb";
 
 const nfa = new NFA(regex);
-console.log(nfa.cytograph());
+const enclosure = nfa.enclosure(nfa.initial_state);
+
+console.log(enclosure);

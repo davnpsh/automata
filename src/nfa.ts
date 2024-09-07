@@ -123,4 +123,34 @@ export class NFA extends Automaton<string> {
 
     return [initial_state, accept_state];
   }
+
+  /**
+   * Enclose the automaton with states. By default, the enclosure is done with epsilon transitions.
+   */
+  enclosure(T: State | State[], symbol: string = "ϵ") {
+    const reacheable_states = new Set();
+
+    // Use depth-first search algorithm
+    function DFS(state: State) {
+      if (reacheable_states.has(state)) return;
+      reacheable_states.add(state);
+
+      for (const edge of state.next) {
+        if (edge.symbol == symbol) {
+          DFS(edge.to);
+        }
+      }
+    }
+
+    // Check if T is an array or a single State
+    if (Array.isArray(T)) {
+      for (const state of T) {
+        DFS(state);
+      }
+    } else {
+      DFS(T);
+    }
+
+    return Array.from(reacheable_states);
+  }
 }
