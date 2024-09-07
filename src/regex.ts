@@ -177,6 +177,7 @@ export class RegExp {
 
   /**
    * Extracts all unique symbols from the regex string.
+   * @returns An array of unique symbols.
    */
   protected extractSymbols(): string[] {
     const ignoreChars = ["(", ")", "|", "*", "+", "?"];
