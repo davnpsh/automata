@@ -1,7 +1,13 @@
 // Automaton definitions
 
 export class State {
+  /**
+   * The state label
+   */
   public label: number;
+  /**
+   * The set of outgoing edges
+   */
   public next: Array<Edge>;
 
   constructor(label: number) {
@@ -14,14 +20,20 @@ export class State {
    * @param symbol Symbol of the alphabet associeted with the edge
    * @param state State to which the edge is pointing
    */
-  addNext(symbol: string, state: State) {
+  addNext(symbol: string, state: State): void {
     let edge = new Edge(symbol, state);
     this.next.push(edge);
   }
 }
 
 class Edge {
+  /**
+   * The symbol of the alphabet associated with the edge
+   */
   public symbol: string;
+  /**
+   * The state to which the edge is pointing
+   */
   public to: State;
 
   constructor(symbol: string, to: State) {
@@ -31,7 +43,13 @@ class Edge {
 }
 
 export abstract class Automaton<T> {
+  /**
+   * The initial state of the automaton
+   */
   public initial_state: State;
+  /**
+   * The accept state of the automaton
+   */
   public accept_state: State;
 
   constructor(data: T) {

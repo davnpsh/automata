@@ -1,17 +1,22 @@
-import { parseRegex, SyntaxTreeNode } from "./regex";
+import { RegExp, SyntaxTreeNode } from "./regex";
 import { State, Automaton } from "./automaton";
 
 export class NFA extends Automaton<string> {
-  constructor(regex: string) {
-    super(regex);
+  /**
+   * The regular expression
+   */
+  public regexp!: RegExp;
+
+  constructor(expression: string) {
+    super(expression);
   }
 
   /**
    * Build the NFA from the syntax tree using Thompson's construction.
    * https://en.wikipedia.org/wiki/Thompson%27s_construction
-   * @param regex - The regex expression to be converted to NFA
+   * @param expression - The regex expression to be converted to NFA
    */
-  build(regex: string): [State, State] {
+  build(expression: string): [State, State] {
     function generateGraph(st_node: SyntaxTreeNode, initial_state: State) {
       let letter: string,
         next_state: State,
@@ -107,8 +112,11 @@ export class NFA extends Automaton<string> {
       }
     }
 
+    // RegExp object
+    this.regexp = new RegExp(expression);
+
     // Regex syntax tree
-    const st = parseRegex(regex);
+    const st = this.regexp.syntax_tree;
 
     // Global labeling
     let label = 0;
@@ -140,13 +148,39 @@ export class NFA extends Automaton<string> {
       }
     }
 
-    // Check if T is an array or a single State
+    // Check if T is an array or a single state
     if (Array.isArray(T)) {
       for (const state of T) {
         DFS(state);
       }
     } else {
       DFS(T);
+    }
+
+    return Array.from(reacheable_states);
+  }
+
+  /**
+   *
+   */
+  move(T: State | State[], symbol: string): State[] {
+    const reacheable_states = new Set<State>();
+
+    function lookUp(state: State) {
+      for (const edge of state.next) {
+        if (edge.symbol == symbol) {
+          reacheable_states.add(edge.to);
+        }
+      }
+    }
+
+    // Check if T is an array or a single state
+    if (Array.isArray(T)) {
+      for (const state of T) {
+        lookUp(state);
+      }
+    } else {
+      lookUp(T);
     }
 
     return Array.from(reacheable_states);
