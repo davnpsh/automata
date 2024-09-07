@@ -7,8 +7,9 @@ export class NFA extends Automaton<string> {
   }
 
   /**
-   * Build the NFA from the syntax tree using Thompson's construction
+   * Build the NFA from the syntax tree using Thompson's construction.
    * https://en.wikipedia.org/wiki/Thompson%27s_construction
+   * @param regex - The regex expression to be converted to NFA
    */
   build(regex: string): [State, State] {
     function generateGraph(st_node: SyntaxTreeNode, initial_state: State) {
@@ -28,7 +29,6 @@ export class NFA extends Automaton<string> {
           // Return accept state
           return accept_state;
 
-          break;
         //
         // (initial_state) ----- a -----> (accept_state)
         case "text":
@@ -40,7 +40,6 @@ export class NFA extends Automaton<string> {
           // Return accept state
           return accept_state;
 
-          break;
         //
         // (initial_state) ----- ϵ -----> (next_state)...(sub-automaton)... ----- ϵ -----> (accept_state)
         case "or":
@@ -62,7 +61,6 @@ export class NFA extends Automaton<string> {
 
           return accept_state;
 
-          break;
         //
         // (initial_state) ...(sub-automaton).. ...(sub-automaton).. ... (accept_state)
         case "cat":
@@ -74,7 +72,6 @@ export class NFA extends Automaton<string> {
 
           return prev_state;
 
-          break;
         //
         case "star":
         case "plus":
@@ -107,8 +104,6 @@ export class NFA extends Automaton<string> {
           }
 
           return accept_state;
-
-          break;
       }
     }
 
@@ -126,9 +121,12 @@ export class NFA extends Automaton<string> {
 
   /**
    * Enclose the automaton with states. By default, the enclosure is done with epsilon transitions.
+   * @param T - The state or states to be enclosed
+   * @param symbol - The symbol to be used for enclosure
+   * @returns The set of states reachable from the given states
    */
-  enclosure(T: State | State[], symbol: string = "ϵ") {
-    const reacheable_states = new Set();
+  enclosure(T: State | State[], symbol: string = "ϵ"): State[] {
+    const reacheable_states = new Set<State>();
 
     // Use depth-first search algorithm
     function DFS(state: State) {
