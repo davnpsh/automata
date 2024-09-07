@@ -16,10 +16,12 @@ export class RegExp {
    * The syntax tree of the regular expression
    */
   public syntax_tree: SyntaxTreeNode;
+  public symbols: string[];
 
   constructor(expression: string) {
     this.expression = expression;
     this.syntax_tree = this.parse();
+    this.symbols = this.extractSymbols();
   }
 
   /**
@@ -171,5 +173,26 @@ export class RegExp {
 
     // Start parsing from the beginning of the string
     return parseSub(this.expression, 0, this.expression.length, true);
+  }
+
+  /**
+   * Extracts all unique symbols from the regex string.
+   */
+  protected extractSymbols(): string[] {
+    const ignoreChars = ["(", ")", "|", "*", "+", "?"];
+
+    //Set to store unique symbols
+    const symbolsSet = new Set<string>();
+
+    // Iterate through each character in the regex string
+    for (const char of this.expression) {
+      // Check if the character is not in the ignore list
+      if (!ignoreChars.includes(char)) {
+        symbolsSet.add(char);
+      }
+    }
+
+    // Convert the Set to an array and return it
+    return Array.from(symbolsSet);
   }
 }
