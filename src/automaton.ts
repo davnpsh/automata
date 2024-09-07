@@ -61,7 +61,7 @@ export abstract class Automaton<T> {
         data: { id: state.label, label: state.label },
       });
 
-      for (const edge of state.next || []) {
+      for (const edge of state.next) {
         states.push({
           data: {
             source: state.label,
