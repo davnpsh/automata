@@ -4,13 +4,13 @@ export class State {
   /**
    * The state label
    */
-  public label: number;
+  public label: number | string;
   /**
    * The set of outgoing edges
    */
   public next: Array<Edge>;
 
-  constructor(label: number) {
+  constructor(label: number | string) {
     this.label = label;
     this.next = [];
   }

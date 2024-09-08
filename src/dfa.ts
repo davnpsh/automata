@@ -180,10 +180,63 @@ export class uDFA extends Automaton<NFA> {
       return [states, transitions];
     }
 
-    function generateGraph() {}
+    function generateGraph(
+      states: StatesTable,
+      transitions: TransitionsTable,
+    ): [State, State] {
+      // Generate all states
+      const new_states = new Set<State>();
+      for (const entry of states.table) {
+        new_states.add(new State(entry.label));
+      }
+
+      function lookUp(label: string): State | null {
+        for (const state of new_states) {
+          if (state.label == label) return state;
+        }
+
+        return null;
+      }
+
+      // Link them
+      for (const entry of transitions.table) {
+        const state: State = lookUp(entry.label) as State;
+
+        for (const symbol of symbols) {
+          const next_state: State = lookUp(
+            entry.transitions.get(symbol) as string,
+          ) as State;
+          state.addNext(symbol, next_state);
+        }
+      }
+
+      // Look for initial and accept states
+      let initial_state: State | null = null,
+        accept_state: State | null = null;
+
+      for (const entry of states.table) {
+        for (const state of entry.states) {
+          // Initial
+          if (state.label == nfa.initial_state.label) {
+            initial_state = lookUp(entry.label) as State;
+          }
+          // Accept
+          if (state.label == nfa.accept_state.label) {
+            accept_state = lookUp(entry.label) as State;
+          }
+        }
+      }
+
+      if (initial_state === null || accept_state === null)
+        throw new Error(
+          "Impossible to find initial or accept states for the uDFA.",
+        );
+
+      return [initial_state, accept_state];
+    }
 
     [this.states, this.transitions] = subset();
 
-    return [nfa.initial_state, nfa.accept_state];
+    return generateGraph(this.states, this.transitions);
   }
 }
