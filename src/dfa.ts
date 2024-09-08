@@ -1,66 +1,6 @@
 import { Automaton, State } from "./automaton";
 import { NFA } from "./nfa";
-
-// Some helper functions
-/**
- * A helper class to generate letters.
- */
-class LetterGenerator {
-  private current: string;
-
-  constructor() {
-    this.current = "A"; // Start with 'A'
-  }
-
-  public next(): string {
-    const result = this.current;
-    this.increment();
-    return result;
-  }
-
-  private increment() {
-    let carry = true;
-    const chars = this.current.split("");
-
-    for (let i = chars.length - 1; i >= 0 && carry; i--) {
-      if (chars[i] === "Z") {
-        chars[i] = "A"; // Reset to 'A' and carry to the next character
-      } else {
-        chars[i] = String.fromCharCode(chars[i].charCodeAt(0) + 1); // Increment the character
-        carry = false; // No more carry needed
-      }
-    }
-
-    if (carry) {
-      // If we still have a carry, we need to add a new character at the start
-      this.current = "A" + this.current;
-    } else {
-      this.current = chars.join("");
-    }
-  }
-}
-
-/**
- * Check if two states are equal.
- * @param A - The first state.
- * @param B - The second state.
- * @returns True if the states are equal, false otherwise.
- */
-function equalStates(A: State[], B: State[]): boolean {
-  // Create sets of labels
-  const set_A = new Set(A.map((obj) => obj.label));
-  const set_B = new Set(B.map((obj) => obj.label));
-
-  if (set_A.size !== set_B.size) return false;
-
-  for (const label of set_A) {
-    if (!set_B.has(label)) {
-      return false;
-    }
-  }
-
-  return true;
-}
+import { LetterGenerator, equalStates } from "./helper";
 
 interface TransitionD {
   label: string;
@@ -106,7 +46,7 @@ class TransitionsTable {
     // Check if the entry already exists
     let entry = this.get(T);
 
-    // If not, just add the new transition
+    // If not, add the new entry
     if (entry === null) {
       entry = { label: T, transitions: new Map() };
       this.table.add(entry);
@@ -167,6 +107,14 @@ export class uDFA extends Automaton<NFA> {
    * The non-deterministic finite automaton (NFA) that this unoptimized DFA is based on.
    */
   public NFA!: NFA;
+  /**
+   * The states table of the DFA.
+   */
+  public states!: StatesTable;
+  /**
+   * The transition table of the DFA.
+   */
+  public transitions!: TransitionsTable;
 
   constructor(nfa: NFA) {
     super(nfa);
@@ -180,51 +128,61 @@ export class uDFA extends Automaton<NFA> {
   protected build(nfa: NFA): [State, State] {
     this.NFA = nfa;
 
-    /* MAIN ALGORITHM */
-
     const symbols = nfa.regexp.symbols;
 
-    const transitions_table = new TransitionsTable();
-    const states_table = new StatesTable();
+    /**
+     * Subset construction.
+     * @returns The states table and the transitions table.
+     */
+    function subset(): [StatesTable, TransitionsTable] {
+      const states = new StatesTable();
+      const transitions = new TransitionsTable();
 
-    const labeler = new LetterGenerator();
-    let label: string, T_label: string, U_label: string;
+      const labeler = new LetterGenerator();
+      let label: string, T_label: string, U_label: string;
 
-    // On start, enclosure-ϵ(s_0) is the only state inside the states table and it is NOT marked.
-    label = labeler.next();
-    states_table.add(label, nfa.enclosure(nfa.initial_state));
+      // On start, enclosure-ϵ(s_0) is the only state inside the states table and it is NOT marked.
+      label = labeler.next();
+      states.add(label, nfa.enclosure(nfa.initial_state));
 
-    while (true) {
-      // While there is an unmarked entry in the states table
-      const T_entry: StateD | null = states_table.getUnmarked();
+      while (true) {
+        // While there is an unmarked entry in the states table
+        const T_entry: StateD | null = states.getUnmarked();
 
-      if (T_entry === null) break;
+        if (T_entry === null) break;
 
-      // Mark T
-      T_entry.marked = true;
+        // Mark T
+        T_entry.marked = true;
 
-      const T: State[] = T_entry!.states;
+        const T: State[] = T_entry!.states;
 
-      for (const symbol of symbols) {
-        const U: State[] = nfa.enclosure(nfa.move(T, symbol));
+        for (const symbol of symbols) {
+          const U: State[] = nfa.enclosure(nfa.move(T, symbol));
 
-        // Check if U already exists in the states table
-        const U_entry: StateD | null = states_table.get(U);
+          // Check if U already exists in the states table
+          const U_entry: StateD | null = states.get(U);
 
-        // If not, add it
-        if (U_entry === null) {
-          label = labeler.next();
-          // Add U as an unmarked state to the states table
-          states_table.add(label, U);
+          // If not, add it
+          if (U_entry === null) {
+            label = labeler.next();
+            // Add U as an unmarked state to the states table
+            states.add(label, U);
+          }
+
+          T_label = T_entry.label;
+          U_label = U_entry === null ? label : U_entry.label;
+
+          // Add U to the transition table
+          transitions.add(T_label, symbol, U_label);
         }
-
-        T_label = T_entry.label;
-        U_label = U_entry === null ? label : U_entry.label;
-
-        // Add U to the transition table
-        transitions_table.add(T_label, symbol, U_label);
       }
+
+      return [states, transitions];
     }
+
+    function generateGraph() {}
+
+    [this.states, this.transitions] = subset();
 
     return [nfa.initial_state, nfa.accept_state];
   }
