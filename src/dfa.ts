@@ -63,11 +63,12 @@ function equalStates(A: State[], B: State[]): boolean {
 }
 
 interface TransitionD {
-  states: State[];
-  symbols: Map<string, State[]>;
+  label: string;
+  transitions: Map<string, string>;
 }
 
 interface StateD {
+  label: string;
   states: State[];
   marked: boolean;
 }
@@ -84,10 +85,54 @@ class TransitionsTable {
 
   /**
    * Check if the transition table contains an entry.
+   * @param label - The label of the transition.
+   * @returns The entry or null if it doesn't exist.
+   */
+  public get(label: string): TransitionD | null {
+    for (const row of this.table) {
+      if (row.label == label) return row;
+    }
+
+    return null;
+  }
+
+  /**
+   * Check if the transition table contains an entry.
+   * @param T - The origin label of the transition.
+   * @param symbol - The symbol of the transition.
+   * @param U - The destiny label of the transition.
+   */
+  public add(T: string, symbol: string, U: string): void {
+    // Check if the entry already exists
+    let entry = this.get(T);
+
+    // If not, just add the new transition
+    if (entry === null) {
+      entry = { label: T, transitions: new Map() };
+      this.table.add(entry);
+    }
+
+    // Add the new transition
+    entry.transitions.set(symbol, U);
+  }
+}
+
+class StatesTable {
+  /**
+   * The states table of the DFA.
+   */
+  public table: Set<StateD>;
+
+  constructor() {
+    this.table = new Set();
+  }
+
+  /**
+   * Check if the transition table contains an entry.
    * @param states - The states of the transition.
    * @returns The entry or null if it doesn't exist.
    */
-  public get(states: State[]): TransitionD | null {
+  public get(states: State[]): StateD | null {
     for (const row of this.table) {
       if (equalStates(row.states, states)) return row;
     }
@@ -96,55 +141,11 @@ class TransitionsTable {
   }
 
   /**
-   * Check if the transition table contains an entry.
-   * @param T - The origin state of the transition.
-   * @param U - The destiny state of the transition.
-   * @param symbol - The symbol of the transition.
-   */
-  public add(T: State[], U: State[], symbol: string): void {
-    // Check if the entry already exists
-    let entry = this.get(T);
-
-    // If not, just add the new transition
-    if (entry === null) {
-      entry = { states: T, symbols: new Map() };
-      this.table.add(entry);
-    }
-
-    // Add the new transition
-    entry.symbols.set(symbol, U);
-  }
-}
-
-class StatesTable {
-  /**
-   * The states table of the DFA.
-   */
-  private table: Set<StateD>;
-
-  constructor() {
-    this.table = new Set();
-  }
-
-  /**
-   * Check if the states table contains an entry.
-   * @param states - The states of the entry.
-   * @returns True if the entry is in the states table, false otherwise.
-   */
-  public has(states: State[]): boolean {
-    for (const row of this.table) {
-      if (equalStates(row.states, states)) return true;
-    }
-
-    return false;
-  }
-
-  /**
    * Add a new state to the states table.
    * @param U - The states to add.
    */
-  public add(U: State[]): void {
-    const entry = { states: U, marked: false };
+  public add(label: string, U: State[]): void {
+    const entry = { label: label, states: U, marked: false };
     this.table.add(entry);
   }
 
@@ -186,44 +187,43 @@ export class uDFA extends Automaton<NFA> {
     const transitions_table = new TransitionsTable();
     const states_table = new StatesTable();
 
+    const labeler = new LetterGenerator();
+    let label: string, T_label: string, U_label: string;
+
     // On start, enclosure-ϵ(s_0) is the only state inside the states table and it is NOT marked.
-    states_table.add(nfa.enclosure(nfa.initial_state));
+    label = labeler.next();
+    states_table.add(label, nfa.enclosure(nfa.initial_state));
 
     while (true) {
       // While there is an unmarked entry in the states table
-      const entry: StateD | null = states_table.getUnmarked();
+      const T_entry: StateD | null = states_table.getUnmarked();
 
-      if (entry === null) break;
+      if (T_entry === null) break;
 
       // Mark T
-      entry.marked = true;
+      T_entry.marked = true;
 
-      const T: State[] = entry!.states;
+      const T: State[] = T_entry!.states;
 
       for (const symbol of symbols) {
         const U: State[] = nfa.enclosure(nfa.move(T, symbol));
 
-        if (!states_table.has(U)) {
+        // Check if U already exists in the states table
+        const U_entry: StateD | null = states_table.get(U);
+
+        // If not, add it
+        if (U_entry === null) {
+          label = labeler.next();
           // Add U as an unmarked state to the states table
-          states_table.add(U);
+          states_table.add(label, U);
         }
 
-        // Add U to the transition
-        transitions_table.add(T, U, symbol);
-      }
-    }
+        T_label = T_entry.label;
+        U_label = U_entry === null ? label : U_entry.label;
 
-    /* Graph generation */
-    function generateGraph() {
-      // Get initial and accept states from the transition tables
-      let initial_state = new State(0);
-    }
-
-    for (let transition of transitions_table.table) {
-      for (let state of transition.states) {
-        console.log(state.label);
+        // Add U to the transition table
+        transitions_table.add(T_label, symbol, U_label);
       }
-      console.log("---");
     }
 
     return [nfa.initial_state, nfa.accept_state];
