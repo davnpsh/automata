@@ -16,6 +16,9 @@ export class RegExp {
    * The syntax tree of the regular expression
    */
   public syntax_tree: SyntaxTreeNode;
+  /**
+   * The symbols of the regular expression
+   */
   public symbols: string[];
 
   constructor(expression: string) {

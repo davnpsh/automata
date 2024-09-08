@@ -1,3 +1,4 @@
+import { uDFA } from "./dfa";
 import { NFA } from "./nfa";
 
 const regex: string = "(a|b)*abb";
@@ -8,3 +9,5 @@ const movements = nfa.move(enclosure, "a");
 
 console.log(enclosure);
 console.log(movements);
+
+const dfa = new uDFA(nfa);
