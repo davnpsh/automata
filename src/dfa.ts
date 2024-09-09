@@ -2,18 +2,18 @@ import { Automaton, State } from "./automaton";
 import { NFA } from "./nfa";
 import { LetterGenerator, equalStates } from "./helper";
 
-interface TransitionD {
+export interface TransitionD {
   label: string;
   transitions: Map<string, string>;
 }
 
-interface StateD {
+export interface StateD {
   label: string;
   states: State[];
   marked: boolean;
 }
 
-class TransitionsTable {
+export class TransitionsTable {
   /**
    * The transition table of the DFA.
    */
@@ -57,7 +57,7 @@ class TransitionsTable {
   }
 }
 
-class StatesTable {
+export class StatesTable {
   /**
    * The states table of the DFA.
    */
@@ -102,7 +102,7 @@ class StatesTable {
   }
 }
 
-export class uDFA extends Automaton<NFA> {
+export abstract class DFA extends Automaton<NFA> {
   /**
    * The non-deterministic finite automaton (NFA) that this unoptimized DFA is based on.
    */
@@ -116,128 +116,64 @@ export class uDFA extends Automaton<NFA> {
    */
   public transitions!: TransitionsTable;
 
-  constructor(nfa: NFA) {
-    super(nfa);
-  }
-
   /**
-   * Build the uDFA from the NFA using subset construction.
-   * https://en.wikipedia.org/wiki/Powerset_construction
-   * @param nfa - The NFA to build the uDFA from.
+   * Generate the graph from the states and transitions tables.
    */
-  protected build(nfa: NFA): [State, State[]] {
-    this.NFA = nfa;
+  protected generateGraph(
+    states: StatesTable,
+    transitions: TransitionsTable,
+  ): [State, State[]] {
+    const symbols = this.NFA.regexp.symbols;
 
-    const symbols = nfa.regexp.symbols;
-
-    /**
-     * Subset construction.
-     * @returns The states table and the transitions table.
-     */
-    function subset(): [StatesTable, TransitionsTable] {
-      const states = new StatesTable();
-      const transitions = new TransitionsTable();
-
-      const labeler = new LetterGenerator();
-      let label: string, T_label: string, U_label: string;
-
-      // On start, enclosure-ϵ(s_0) is the only state inside the states table and it is NOT marked.
-      label = labeler.next();
-      states.add(label, nfa.enclosure(nfa.initial_state));
-
-      while (true) {
-        // While there is an unmarked entry in the states table
-        const T_entry: StateD | null = states.getUnmarked();
-
-        if (T_entry === null) break;
-
-        // Mark T
-        T_entry.marked = true;
-
-        const T: State[] = T_entry!.states;
-
-        for (const symbol of symbols) {
-          const U: State[] = nfa.enclosure(nfa.move(T, symbol));
-
-          // Check if U already exists in the states table
-          const U_entry: StateD | null = states.get(U);
-
-          // If not, add it
-          if (U_entry === null) {
-            label = labeler.next();
-            // Add U as an unmarked state to the states table
-            states.add(label, U);
-          }
-
-          T_label = T_entry.label;
-          U_label = U_entry === null ? label : U_entry.label;
-
-          // Add U to the transition table
-          transitions.add(T_label, symbol, U_label);
-        }
-      }
-
-      return [states, transitions];
+    // Generate all states
+    const new_states = new Set<State>();
+    for (const entry of states.table) {
+      new_states.add(new State(entry.label));
     }
 
-    function generateGraph(
-      states: StatesTable,
-      transitions: TransitionsTable,
-    ): [State, State[]] {
-      // Generate all states
-      const new_states = new Set<State>();
-      for (const entry of states.table) {
-        new_states.add(new State(entry.label));
+    function lookUp(label: string): State | null {
+      for (const state of new_states) {
+        if (state.label == label) return state;
       }
 
-      function lookUp(label: string): State | null {
-        for (const state of new_states) {
-          if (state.label == label) return state;
-        }
+      return null;
+    }
 
-        return null;
+    // Link them
+    for (const entry of transitions.table) {
+      const state: State = lookUp(entry.label) as State;
+
+      for (const symbol of symbols) {
+        const next_state: State = lookUp(
+          entry.transitions.get(symbol) as string,
+        ) as State;
+        state.addNext(symbol, next_state);
       }
+    }
 
-      // Link them
-      for (const entry of transitions.table) {
-        const state: State = lookUp(entry.label) as State;
-
-        for (const symbol of symbols) {
-          const next_state: State = lookUp(
-            entry.transitions.get(symbol) as string,
-          ) as State;
-          state.addNext(symbol, next_state);
-        }
-      }
-
-      // Get initial state
-      const initial_state: State = ((): State | null => {
-        for (const entry of states.table) {
-          for (const state of entry.states) {
-            if (state.label == nfa.initial_state.label) {
-              return lookUp(entry.label) as State;
-            }
-          }
-        }
-        return null;
-      })() as State;
-
-      // Get accept states
-      const accept_states: State[] = [];
+    // Get initial state
+    const initial_state: State = ((): State | null => {
       for (const entry of states.table) {
         for (const state of entry.states) {
-          // The NFA only has 1 accept state
-          if (state.label == nfa.accept_states[0].label) {
-            accept_states.push(lookUp(entry.label) as State);
+          if (state.label == this.NFA.initial_state.label) {
+            return lookUp(entry.label) as State;
           }
         }
       }
+      return null;
+    })() as State;
 
-      return [initial_state, accept_states];
+    // Get accept states
+    const accept_states: State[] = [];
+    for (const entry of states.table) {
+      for (const state of entry.states) {
+        // The NFA only has 1 accept state
+        if (state.label == this.NFA.accept_states[0].label) {
+          accept_states.push(lookUp(entry.label) as State);
+        }
+      }
     }
 
-    [this.states, this.transitions] = subset();
-
-    return generateGraph(this.states, this.transitions);
+    return [initial_state, accept_states];
   }
 }
