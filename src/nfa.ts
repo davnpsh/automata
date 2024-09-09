@@ -121,11 +121,11 @@ export class NFA extends Automaton<string> {
     // Global labeling
     let label = 0;
 
-    let initial_state = new State(label),
+    const initial_state = new State(label),
       // There will be always only 1 accept state in a NFA
-      accept_state = [generateGraph(st, initial_state) as State];
+      accept_states = [generateGraph(st, initial_state) as State];
 
-    return [initial_state, accept_state];
+    return [initial_state, accept_states];
   }
 
   /**

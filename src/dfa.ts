@@ -125,7 +125,7 @@ export class uDFA extends Automaton<NFA> {
    * https://en.wikipedia.org/wiki/Powerset_construction
    * @param nfa - The NFA to build the uDFA from.
    */
-  protected build(nfa: NFA): [State, State] {
+  protected build(nfa: NFA): [State, State[]] {
     this.NFA = nfa;
 
     const symbols = nfa.regexp.symbols;
@@ -183,7 +183,7 @@ export class uDFA extends Automaton<NFA> {
     function generateGraph(
       states: StatesTable,
       transitions: TransitionsTable,
-    ): [State, State] {
+    ): [State, State[]] {
       // Generate all states
       const new_states = new Set<State>();
       for (const entry of states.table) {
@@ -210,29 +210,30 @@ export class uDFA extends Automaton<NFA> {
         }
       }
 
-      // Look for initial and accept states
-      let initial_state: State | null = null,
-        accept_state: State | null = null;
+      // Get initial state
+      const initial_state: State = ((): State | null => {
+        for (const entry of states.table) {
+          for (const state of entry.states) {
+            if (state.label == nfa.initial_state.label) {
+              return lookUp(entry.label) as State;
+            }
+          }
+        }
+        return null;
+      })() as State;
 
+      // Get accept states
+      const accept_states: State[] = [];
       for (const entry of states.table) {
         for (const state of entry.states) {
-          // Initial
-          if (state.label == nfa.initial_state.label) {
-            initial_state = lookUp(entry.label) as State;
-          }
-          // Accept
-          if (state.label == nfa.accept_state.label) {
-            accept_state = lookUp(entry.label) as State;
+          // The NFA only has 1 accept state
+          if (state.label == nfa.accept_states[0].label) {
+            accept_states.push(lookUp(entry.label) as State);
           }
         }
       }
 
-      if (initial_state === null || accept_state === null)
-        throw new Error(
-          "Impossible to find initial or accept states for the uDFA.",
-        );
-
-      return [initial_state, accept_state];
+      return [initial_state, accept_states];
     }
 
     [this.states, this.transitions] = subset();
