@@ -55,6 +55,27 @@ export class TransitionsTable {
     // Add the new transition
     entry.transitions.set(symbol, U);
   }
+
+  /**
+   * Clones the transition table
+   * @returns The cloned transition table
+   */
+  public clone(): TransitionsTable {
+    const new_table: TransitionsTable = new TransitionsTable();
+
+    for (const entry of this.table) {
+      const new_transitions = new Map<string, string>(entry.transitions);
+
+      const new_entry: TransitionD = {
+        label: entry.label,
+        transitions: new_transitions,
+      };
+
+      new_table.table.add(new_entry);
+    }
+
+    return new_table;
+  }
 }
 
 export class StatesTable {
@@ -99,6 +120,21 @@ export class StatesTable {
     }
 
     return null;
+  }
+
+  /**
+   * Clones the states table
+   * @returns The cloned states table
+   */
+  public clone(): StatesTable {
+    const new_table: StatesTable = new StatesTable();
+
+    for (const entry of this.table) {
+      const new_entry = { ...entry, states: [...entry.states] };
+      new_table.table.add(new_entry);
+    }
+
+    return new_table;
   }
 }
 

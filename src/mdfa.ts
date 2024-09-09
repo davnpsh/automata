@@ -1,5 +1,5 @@
 import { State } from "./automaton";
-import { DFA, StatesTable } from "./dfa";
+import { DFA, StatesTable, TransitionsTable } from "./dfa";
 import { uDFA } from "./udfa";
 
 export class mDFA extends DFA {
@@ -30,7 +30,7 @@ export class mDFA extends DFA {
    * @returns A new and reduced states table.
    */
   protected reduceStates(states: StatesTable): StatesTable {
-    const new_table: StatesTable = new StatesTable();
+    const new_table: StatesTable = states.clone();
 
     function isSignificant(state: State): boolean {
       // If it is an accept state
@@ -41,21 +41,20 @@ export class mDFA extends DFA {
       return false;
     }
 
-    for (const entry of states.table) {
-      // Copy new entry for modification
-      const new_entry = { ...entry, states: [...entry.states] };
-
+    for (const entry of new_table.table) {
       // Reduce
-      for (let i = new_entry.states.length - 1; i >= 0; i--) {
-        const state = new_entry.states[i];
+      for (let i = entry.states.length - 1; i >= 0; i--) {
+        const state = entry.states[i];
 
-        if (!isSignificant(state)) new_entry.states.splice(i, 1);
+        if (!isSignificant(state)) entry.states.splice(i, 1);
       }
-
-      // Add
-      new_table.table.add(new_entry);
     }
 
     return new_table;
   }
+
+  protected reduceTransitions(
+    states: StatesTable,
+    transitions: TransitionsTable,
+  ) {}
 }
