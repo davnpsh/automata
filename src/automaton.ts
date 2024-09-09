@@ -46,7 +46,7 @@ class Edge {
   }
 }
 
-export abstract class Automaton<T> {
+export abstract class Automaton {
   /**
    * The initial state of the automaton
    */
@@ -56,7 +56,7 @@ export abstract class Automaton<T> {
    */
   public accept_states: State[];
 
-  constructor(data: T) {
+  constructor(data: string) {
     [this.initial_state, this.accept_states] = this.build(data);
 
     // Mark accept states
@@ -68,7 +68,7 @@ export abstract class Automaton<T> {
    * @param data Data to build the automaton from
    * @returns [initial_state, accept_state]
    */
-  protected abstract build(data: T): [State, State[]];
+  protected abstract build(data: string): [State, State[]];
 
   /**
    * @returns The set of states and edges in the automaton in a Cytoscape-compatible format

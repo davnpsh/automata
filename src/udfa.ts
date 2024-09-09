@@ -4,8 +4,8 @@ import { DFA, StateD, StatesTable, TransitionsTable } from "./dfa";
 import { LetterGenerator } from "./helper";
 
 export class uDFA extends DFA {
-  constructor(nfa: NFA) {
-    super(nfa);
+  constructor(expression: string) {
+    super(expression);
   }
 
   /**
@@ -13,15 +13,12 @@ export class uDFA extends DFA {
    * https://en.wikipedia.org/wiki/Powerset_construction
    * @param nfa - The NFA to build the uDFA from.
    */
-  protected build(nfa: NFA): [State, State[]] {
-    // Very important to assign build data first!
-    this.NFA = nfa;
-
+  protected build(expression: string): [State, State[]] {
     /**
      * Subset construction.
      * @returns The states table and the transitions table.
      */
-    function subset(): [StatesTable, TransitionsTable] {
+    function subset(nfa: NFA): [StatesTable, TransitionsTable] {
       const symbols = nfa.regexp.symbols;
 
       const states = new StatesTable();
@@ -69,7 +66,10 @@ export class uDFA extends DFA {
       return [states, transitions];
     }
 
-    [this.states, this.transitions] = subset();
+    // Important to assign before generateGraph execution!
+    this.NFA = new NFA(expression);
+
+    [this.states, this.transitions] = subset(this.NFA);
 
     return this.generateGraph(this.states, this.transitions);
   }

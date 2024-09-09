@@ -102,7 +102,7 @@ export class StatesTable {
   }
 }
 
-export abstract class DFA extends Automaton<NFA> {
+export abstract class DFA extends Automaton {
   /**
    * The non-deterministic finite automaton (NFA) that this unoptimized DFA is based on.
    */
