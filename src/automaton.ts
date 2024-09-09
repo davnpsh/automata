@@ -9,6 +9,10 @@ export class State {
    * The set of outgoing edges
    */
   public next: Array<Edge>;
+  /**
+   * Is the state an accept state?
+   */
+  public accept: boolean = false;
 
   constructor(label: number | string) {
     this.label = label;
@@ -50,10 +54,13 @@ export abstract class Automaton<T> {
   /**
    * The accept state of the automaton
    */
-  public accept_state: State;
+  public accept_states: State[];
 
   constructor(data: T) {
-    [this.initial_state, this.accept_state] = this.build(data);
+    [this.initial_state, this.accept_states] = this.build(data);
+
+    // Mark accept states
+    this.accept_states.forEach((state) => (state.accept = true));
   }
 
   /**
@@ -61,7 +68,7 @@ export abstract class Automaton<T> {
    * @param data Data to build the automaton from
    * @returns [initial_state, accept_state]
    */
-  protected abstract build(data: T): [State, State];
+  protected abstract build(data: T): [State, State[]];
 
   /**
    * @returns The set of states and edges in the automaton in a Cytoscape-compatible format

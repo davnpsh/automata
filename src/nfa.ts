@@ -16,7 +16,7 @@ export class NFA extends Automaton<string> {
    * https://en.wikipedia.org/wiki/Thompson%27s_construction
    * @param expression - The regex expression to be converted to NFA
    */
-  protected build(expression: string): [State, State] {
+  protected build(expression: string): [State, State[]] {
     function generateGraph(st_node: SyntaxTreeNode, initial_state: State) {
       let letter: string,
         next_state: State,
@@ -122,7 +122,8 @@ export class NFA extends Automaton<string> {
     let label = 0;
 
     let initial_state = new State(label),
-      accept_state = generateGraph(st, initial_state) as State;
+      // There will be always only 1 accept state in a NFA
+      accept_state = [generateGraph(st, initial_state) as State];
 
     return [initial_state, accept_state];
   }
