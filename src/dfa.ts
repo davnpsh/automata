@@ -1,6 +1,6 @@
 import { Automaton, State } from "./automaton";
 import { NFA } from "./nfa";
-import { LetterGenerator, equalStates } from "./helper";
+import { equalStates } from "./helper";
 
 export interface TransitionD {
   label: string;
