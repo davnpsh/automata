@@ -39,7 +39,34 @@ export class mDFA extends DFA {
       udfa.transitions,
     );
 
-    return this.generateGraph(this.states, this.transitions);
+    const graph_states = this.generateGraph();
+
+    return this.initializeStates(graph_states);
+  }
+
+  protected initializeStates(graph_states: Set<State>): [State, State[]] {
+    // Initial state
+    const initial_state = ((): State | null => {
+      // This basically looks for the original initial state of the uDFA and compartes
+      for (const entry of this.states.table) {
+        if (entry.label == this.uDFA.initial_state.label)
+          return this.lookUp(entry.label, graph_states);
+      }
+      return null;
+    })() as State;
+
+    // Accept states
+    const accept_states: State[] = [];
+    for (const entry of this.states.table) {
+      for (const state of entry.states) {
+        // The NFA only has 1 accept state
+        if (state.label == this.NFA.accept_states[0].label) {
+          accept_states.push(this.lookUp(entry.label, graph_states) as State);
+        }
+      }
+    }
+
+    return [initial_state, accept_states];
   }
 
   /**

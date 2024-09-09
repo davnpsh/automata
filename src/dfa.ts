@@ -162,6 +162,7 @@ export abstract class DFA extends Automaton {
 
   /**
    * Generate the graph from the states and transitions tables.
+   * @returns The states of the graph.
    */
   protected generateGraph(): Set<State> {
     const symbols = this.NFA.regexp.symbols;
@@ -188,6 +189,11 @@ export abstract class DFA extends Automaton {
     return new_states;
   }
 
+  /**
+   * Initialize initial and accept states.
+   * @param graph_states - The states of the graph.
+   * @returns The initial and accept states.
+   */
   protected abstract initializeStates(
     graph_states: Set<State>,
   ): [State, State[]];
