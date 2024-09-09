@@ -4,4 +4,5 @@ import { mDFA } from "./mdfa";
 
 const regex: string = "(a|b)*abb";
 
-const dfa = new mDFA(regex);
+const dfa = new uDFA(regex);
+console.log(dfa.initial_state);

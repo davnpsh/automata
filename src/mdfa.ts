@@ -1,8 +1,18 @@
 import { State } from "./automaton";
-import { DFA, StatesTable, TransitionsTable } from "./dfa";
+import { DFA, StateD, StatesTable, TransitionD, TransitionsTable } from "./dfa";
+import { equalStates } from "./helper";
 import { uDFA } from "./udfa";
 
 export class mDFA extends DFA {
+  /**
+   * The uDFA used to build the mDFA.
+   */
+  public uDFA!: uDFA;
+  /**
+   * The equivalent states table converted from the uDFA.
+   */
+  public equivalent_states!: StatesTable;
+
   constructor(expression: string) {
     super(expression);
   }
@@ -14,14 +24,22 @@ export class mDFA extends DFA {
    */
   protected build(expression: string): [State, State[]] {
     // Build from uDFA
-    const dfa = new uDFA(expression);
-    const old_table = dfa.states;
-    const new_table = this.reduceStates(dfa.states);
+    const udfa = new uDFA(expression);
 
-    console.log(old_table.table);
-    console.log(new_table.table);
+    // Reference base NFA
+    this.NFA = udfa.NFA;
+    // Reference base uDFA
+    this.uDFA = udfa;
 
-    return [new State(0), []];
+    // Equivalent states without removing identical ones
+    this.equivalent_states = this.equivalentStates(udfa.states);
+
+    [this.states, this.transitions] = this.reduce(
+      this.equivalent_states,
+      udfa.transitions,
+    );
+
+    return this.generateGraph(this.states, this.transitions);
   }
 
   /**
@@ -29,7 +47,7 @@ export class mDFA extends DFA {
    * @param states - The states table of the uDFA.
    * @returns A new and reduced states table.
    */
-  protected reduceStates(states: StatesTable): StatesTable {
+  protected equivalentStates(states: StatesTable): StatesTable {
     const new_table: StatesTable = states.clone();
 
     function isSignificant(state: State): boolean {
@@ -53,8 +71,62 @@ export class mDFA extends DFA {
     return new_table;
   }
 
-  protected reduceTransitions(
-    states: StatesTable,
+  /**
+   * Reduce the transitions of the uDFA.
+   * @param states - The equivalent states table of the uDFA.
+   * @param transitions - The original transitions table of the uDFA.
+   * @returns New and reduced states and transitions tables.
+   */
+  protected reduce(
+    equivalent_states: StatesTable,
     transitions: TransitionsTable,
-  ) {}
+  ): [StatesTable, TransitionsTable] {
+    // Clone, reduce and get an array from the original states table
+    const new_states: Array<StateD> = Array.from(equivalent_states.table);
+    //
+    const new_transitions: Array<TransitionD> = Array.from(transitions.table);
+
+    function replaceLabel(new_label: string, old_label: string): void {
+      // Iterate and remove old transitions
+      for (let i = 0; i < new_transitions.length; i++) {
+        if (new_transitions[i].label == old_label) {
+          new_transitions.splice(i, 1);
+        }
+      }
+
+      // Iterate and replace the rest
+      for (let i = 0; i < new_transitions.length; i++) {
+        new_transitions[i].transitions.forEach((transition, symbol) => {
+          if (transition === old_label) {
+            new_transitions[i].transitions.set(symbol, new_label);
+          }
+        });
+      }
+    }
+
+    for (let i = 0; i < new_states.length; i++) {
+      for (let j = i + 1; j < new_states.length; j++) {
+        // Check if equal
+        if (equalStates(new_states[i].states, new_states[j].states)) {
+          // Identical label to persist
+          const new_label: string = new_states[i].label;
+          // Identical label to replace
+          const old_label: string = new_states[j].label;
+
+          replaceLabel(new_label, old_label);
+
+          // Delete from new states
+          new_states.splice(j, 1);
+        }
+      }
+    }
+
+    let mdfa_states = new StatesTable();
+    mdfa_states.table = new Set(new_states);
+
+    let mdfa_transitions = new TransitionsTable();
+    mdfa_transitions.table = new Set(new_transitions);
+
+    return [mdfa_states, mdfa_transitions];
+  }
 }

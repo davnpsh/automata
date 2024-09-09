@@ -71,6 +71,35 @@ export class uDFA extends DFA {
 
     [this.states, this.transitions] = subset(this.NFA);
 
-    return this.generateGraph(this.states, this.transitions);
+    const graph_states = this.generateGraph();
+
+    return this.initializeStates(graph_states);
+  }
+
+  protected initializeStates(graph_states: Set<State>): [State, State[]] {
+    // Initial
+    const initial_state = ((): State | null => {
+      for (const entry of this.states.table) {
+        for (const state of entry.states) {
+          if (state.label == this.NFA.initial_state.label) {
+            return this.lookUp(entry.label, graph_states) as State;
+          }
+        }
+      }
+      return null;
+    })() as State;
+
+    // Accept states
+    const accept_states: State[] = [];
+    for (const entry of this.states.table) {
+      for (const state of entry.states) {
+        // The NFA only has 1 accept state
+        if (state.label == this.NFA.accept_states[0].label) {
+          accept_states.push(this.lookUp(entry.label, graph_states) as State);
+        }
+      }
+    }
+
+    return [initial_state, accept_states];
   }
 }

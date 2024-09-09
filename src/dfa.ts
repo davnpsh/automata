@@ -152,64 +152,43 @@ export abstract class DFA extends Automaton {
    */
   public transitions!: TransitionsTable;
 
+  protected lookUp(label: string, states: Set<State>): State | null {
+    for (const state of states) {
+      if (state.label == label) return state;
+    }
+
+    return null;
+  }
+
   /**
    * Generate the graph from the states and transitions tables.
    */
-  protected generateGraph(
-    states: StatesTable,
-    transitions: TransitionsTable,
-  ): [State, State[]] {
+  protected generateGraph(): Set<State> {
     const symbols = this.NFA.regexp.symbols;
 
     // Generate all states
     const new_states = new Set<State>();
-    for (const entry of states.table) {
+    for (const entry of this.states.table) {
       new_states.add(new State(entry.label));
     }
 
-    function lookUp(label: string): State | null {
-      for (const state of new_states) {
-        if (state.label == label) return state;
-      }
-
-      return null;
-    }
-
     // Link them
-    for (const entry of transitions.table) {
-      const state: State = lookUp(entry.label) as State;
+    for (const entry of this.transitions.table) {
+      const state: State = this.lookUp(entry.label, new_states) as State;
 
       for (const symbol of symbols) {
-        const next_state: State = lookUp(
+        const next_state: State = this.lookUp(
           entry.transitions.get(symbol) as string,
+          new_states,
         ) as State;
         state.addNext(symbol, next_state);
       }
     }
 
-    // Get initial state
-    const initial_state: State = ((): State | null => {
-      for (const entry of states.table) {
-        for (const state of entry.states) {
-          if (state.label == this.NFA.initial_state.label) {
-            return lookUp(entry.label) as State;
-          }
-        }
-      }
-      return null;
-    })() as State;
-
-    // Get accept states
-    const accept_states: State[] = [];
-    for (const entry of states.table) {
-      for (const state of entry.states) {
-        // The NFA only has 1 accept state
-        if (state.label == this.NFA.accept_states[0].label) {
-          accept_states.push(lookUp(entry.label) as State);
-        }
-      }
-    }
-
-    return [initial_state, accept_states];
+    return new_states;
   }
+
+  protected abstract initializeStates(
+    graph_states: Set<State>,
+  ): [State, State[]];
 }
