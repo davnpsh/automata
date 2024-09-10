@@ -160,33 +160,4 @@ export class NFA extends Automaton {
 
     return Array.from(reacheable_states);
   }
-
-  /**
-   * Move the automaton with states.
-   * @param T - The state or states to be enclosed
-   * @param symbol - The symbol to be used for the move
-   * @returns The set of states reachable from the given states
-   */
-  public move(T: State | State[], symbol: string): State[] {
-    const reacheable_states = new Set<State>();
-
-    function lookUp(state: State) {
-      for (const edge of state.next) {
-        if (edge.symbol == symbol) {
-          reacheable_states.add(edge.to);
-        }
-      }
-    }
-
-    // Check if T is an array or a single state
-    if (Array.isArray(T)) {
-      for (const state of T) {
-        lookUp(state);
-      }
-    } else {
-      lookUp(T);
-    }
-
-    return Array.from(reacheable_states);
-  }
 }
