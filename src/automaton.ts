@@ -1,3 +1,17 @@
+/**
+ * Transition definition
+ */
+interface Transition {
+  /**
+   * The state from which the transition is made
+   */
+  from: State;
+  /**
+   * The symbol of the alphabet associated with the transition
+   */
+  symbol?: string;
+}
+
 // Automaton definitions
 
 export class State {
@@ -130,5 +144,52 @@ export abstract class Automaton {
     }
 
     return Array.from(reacheable_states);
+  }
+
+  /**
+   * Test the automaton with a string
+   * @param string - The string to be tested
+   * @returns The set of routes to accept states
+   */
+  public test(string: string) {
+    let accept: boolean = false;
+
+    const routes: Array<Array<Transition>> = [];
+    /**
+     * @param state - The state to be tested
+     * @param sub - The string to be tested
+     */
+    function traverse(
+      state: State,
+      sub: string,
+      path: Array<Transition> = [],
+    ): void {
+      let transition: Transition = { from: state };
+      // Add itself to the path
+      path.push(transition);
+
+      // If there is no more string left to check
+      // or there are no more states to go to
+      if (sub.length == 0 || state.next.length == 0) {
+        routes.push(path);
+        // Mark the flag as string accepted
+        accept = true;
+        return;
+      }
+
+      for (const edge of state.next) {
+        // If there is somewhere to go
+        if (edge.symbol == sub[0] || edge.symbol == "ϵ") {
+          // Complete the rest of the transition
+          transition.symbol = edge.symbol;
+          const newSub = edge.symbol == "ϵ" ? sub : sub.slice(1);
+          traverse(edge.to, newSub, path.slice());
+        }
+      }
+    }
+
+    traverse(this.initial_state, string);
+
+    return { accept: accept, routes: routes };
   }
 }
