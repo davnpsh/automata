@@ -45,6 +45,8 @@ export class uDFA extends DFA {
         for (const symbol of symbols) {
           const U: State[] = nfa.enclosure(nfa.move(T, symbol));
 
+          if (U.length == 0) continue;
+
           // Check if U already exists in the states table
           const U_entry: StateD | null = states.get(U);
 

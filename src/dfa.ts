@@ -177,13 +177,19 @@ export abstract class DFA extends Automaton {
     for (const entry of this.transitions.table) {
       const state: State = this.lookUp(entry.label, new_states) as State;
 
-      for (const symbol of symbols) {
-        const next_state: State = this.lookUp(
-          entry.transitions.get(symbol) as string,
-          new_states,
-        ) as State;
+      // for (const symbol of symbols) {
+      //   const next_state: State = this.lookUp(
+      //     entry.transitions.get(symbol) as string,
+      //     new_states,
+      //   ) as State;
+      //   state.addNext(symbol, next_state);
+      // }
+
+      // Much better method to avoid null values
+      entry.transitions.forEach((label, symbol) => {
+        const next_state = this.lookUp(label, new_states) as State;
         state.addNext(symbol, next_state);
-      }
+      });
     }
 
     return new_states;
