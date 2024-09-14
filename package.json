@@ -1,13 +1,14 @@
 {
-  "name": "automata",
+  "name": "@davnpsh/automata",
   "version": "1.0.0",
   "description": "Automaton generator from regular expressions",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "ts-node src/index.ts"
+    "test": "ts-node test.ts"
   },
   "keywords": [
+    "dfa",
     "udfa",
     "nfa",
     "mdfa",
