@@ -94,7 +94,7 @@ export class TransitionsTable {
    * @param symbol - The symbol of the transition.
    * @param U - The destiny label of the transition.
    */
-  public add(T: string, symbol: string, U: string): void {
+  public add(T: string, symbol?: string, U?: string): void {
     // Check if the entry already exists
     let entry = this.get(T);
 
@@ -104,8 +104,9 @@ export class TransitionsTable {
       this.table.add(entry);
     }
 
-    // Add the new transition
-    entry.transitions.set(symbol, U);
+    if (symbol && U)
+      // Add the new transition
+      entry.transitions.set(symbol, U);
   }
 
   /**

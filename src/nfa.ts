@@ -1,14 +1,19 @@
 import { RegExp, SyntaxTreeNode } from "./regex";
-import { State, Automaton } from "./automaton";
+import { State, Automaton, TransitionsTable } from "./automaton";
 
 export class NFA extends Automaton {
   /**
    * The regular expression
    */
   public regexp!: RegExp;
+  /**
+   * The transition table of the DFA.
+   */
+  public transitions!: TransitionsTable;
 
   constructor(expression: string) {
     super(expression);
+    this.generateTransitionsTable();
   }
 
   /**
@@ -161,5 +166,30 @@ export class NFA extends Automaton {
     return Array.from(reacheable_states);
   }
 
-  protected generateTransitionsTable() {}
+  protected generateTransitionsTable(): void {
+    this.transitions = new TransitionsTable();
+    const visited = new Set();
+
+    // Use depth-first search algorithm
+    function DFS(transitions: TransitionsTable, state: State) {
+      if (visited.has(state)) return;
+      visited.add(state);
+
+      if (state.next.length == 0) {
+        transitions.add(state.label.toString());
+      }
+
+      for (const edge of state.next) {
+        transitions.add(
+          state.label.toString(),
+          edge.symbol,
+          edge.to.label.toString(),
+        );
+
+        DFS(transitions, edge.to);
+      }
+    }
+
+    DFS(this.transitions, this.initial_state);
+  }
 }

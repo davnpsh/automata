@@ -1,8 +1,8 @@
 import { NFA } from "./src/nfa";
 import { mDFA } from "./src/mdfa";
 
-const expression = "ab";
+const expression = "(a|b)*abb";
 
 const dfa = new mDFA(expression);
 
-console.log(dfa);
+console.log(dfa.NFA.transitions.table);
