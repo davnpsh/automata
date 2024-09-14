@@ -131,6 +131,13 @@ export class TransitionsTable {
   }
 }
 
+interface AutomatonConfig {
+  /**
+   * Custom epsilon symbol
+   */
+  epsilon?: string;
+}
+
 export abstract class Automaton {
   /**
    * The initial state of the automaton
@@ -140,8 +147,14 @@ export abstract class Automaton {
    * The accept state of the automaton
    */
   public accept_states: State[];
+  /**
+   * The epsilon symbol to be used in the automaton
+   */
+  private epsilon!: string;
 
-  constructor(data: string) {
+  constructor(data: string, config?: AutomatonConfig) {
+    this.parseConfig(config);
+
     [this.initial_state, this.accept_states] = this.build(data);
 
     // Mark accept states
@@ -149,11 +162,19 @@ export abstract class Automaton {
   }
 
   /**
-   *
    * @param data Data to build the automaton from
    * @returns [initial_state, accept_state]
    */
   protected abstract build(data: string): [State, State[]];
+
+  /**
+   * Parse the automaton configuration
+   * @param config - The configuration to be parsed
+   */
+  protected parseConfig(config?: AutomatonConfig): void {
+    // Custom epsilon symbol
+    this.epsilon = config?.epsilon || "ϵ";
+  }
 
   /**
    * @returns The set of states and edges in the automaton in a Cytoscape-compatible format
