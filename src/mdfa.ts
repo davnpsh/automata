@@ -79,7 +79,7 @@ export class mDFA extends DFA {
 
     function isSignificant(state: State): boolean {
       // If it is an accept state
-      if (state.next.length == 0) return true;
+      if (state.accept == true) return true;
       // If it has at least 1 edge with a symbol different from epsilon
       if (state.next[0].symbol !== "ϵ") return true;
 
