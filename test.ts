@@ -1,8 +1,8 @@
 import { NFA } from "./src/nfa";
 import { mDFA } from "./src/mdfa";
 
-const expression = "(a|b)*abb";
+const expression = "ϵ";
 
 const dfa = new mDFA(expression);
 
-console.log(dfa);
+console.log(dfa.uDFA.cytograph());

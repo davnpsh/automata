@@ -169,6 +169,7 @@ export abstract class Automaton {
       visited.add(state);
       states.push({
         data: { id: state.label, label: state.label },
+        classes: state.accept ? "accept" : "",
       });
 
       for (const edge of state.next) {
@@ -182,6 +183,17 @@ export abstract class Automaton {
         DFS(edge.to);
       }
     }
+
+    // Push dummy start node and edge
+    states.push({ data: { id: "invisible", label: "" }, classes: "invisible" });
+    states.push({
+      data: {
+        id: "start",
+        source: "invisible",
+        target: this.initial_state.label,
+        label: "start",
+      },
+    });
 
     DFS(this.initial_state);
 
