@@ -1,7 +1,7 @@
 import { NFA } from "./src/nfa";
 import { mDFA } from "./src/mdfa";
 
-const expression = "ϵ";
+const expression = "a?";
 
 const dfa = new mDFA(expression);
 
