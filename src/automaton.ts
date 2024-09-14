@@ -135,7 +135,7 @@ interface AutomatonConfig {
   /**
    * Custom epsilon symbol
    */
-  epsilon?: string;
+  empty_symbol?: string;
 }
 
 export abstract class Automaton {
@@ -150,7 +150,7 @@ export abstract class Automaton {
   /**
    * The epsilon symbol to be used in the automaton
    */
-  private epsilon!: string;
+  protected empty_symbol!: string;
 
   constructor(data: string, config?: AutomatonConfig) {
     this.parseConfig(config);
@@ -173,7 +173,7 @@ export abstract class Automaton {
    */
   protected parseConfig(config?: AutomatonConfig): void {
     // Custom epsilon symbol
-    this.epsilon = config?.epsilon || "ϵ";
+    this.empty_symbol = config?.empty_symbol || "ϵ";
   }
 
   /**

@@ -20,8 +20,13 @@ export class RegExp {
    * The symbols of the regular expression
    */
   public symbols: string[];
+  /*
+   * Empty symbol to be used on the regexp
+   */
+  protected empty_symbol: string;
 
-  constructor(expression: string) {
+  constructor(expression: string, empty_symbol: string) {
+    this.empty_symbol = empty_symbol;
     this.expression = expression;
     this.syntax_tree = this.parse();
     this.symbols = this.extractSymbols();
@@ -37,6 +42,8 @@ export class RegExp {
    @returns The syntax tree of the regular expression
    */
   protected parse(): SyntaxTreeNode {
+    const empty_symbol: string = this.empty_symbol;
+
     function parseSub(
       text: string,
       begin: number,
@@ -152,7 +159,7 @@ export class RegExp {
             tempNode.type = "optional";
             tempNode.sub = parts[parts.length - 1];
             parts[parts.length - 1] = tempNode; // Replace last part with optional node
-          } else if (text[i] === "ϵ") {
+          } else if (text[i] === empty_symbol) {
             // Handle epsilon (empty string)
             tempNode = { begin: begin + i, end: begin + i + 1 };
             tempNode.type = "empty";
@@ -183,7 +190,7 @@ export class RegExp {
    * @returns An array of unique symbols.
    */
   protected extractSymbols(): string[] {
-    const ignoreChars = ["(", ")", "|", "*", "+", "?", "ϵ"];
+    const ignoreChars = ["(", ")", "|", "*", "+", "?", this.empty_symbol];
 
     //Set to store unique symbols
     const symbolsSet = new Set<string>();

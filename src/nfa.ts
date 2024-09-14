@@ -118,7 +118,7 @@ export class NFA extends Automaton {
     }
 
     // RegExp object
-    this.regexp = new RegExp(expression);
+    this.regexp = new RegExp(expression, this.empty_symbol);
 
     // Regex syntax tree
     const st = this.regexp.syntax_tree;
