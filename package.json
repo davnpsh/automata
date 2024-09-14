@@ -1,16 +1,27 @@
 {
-  "name": "automata-scripts",
+  "name": "automata",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Automaton generator from regular expressions",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "ts-node src/index.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "udfa",
+    "nfa",
+    "mdfa",
+    "automata",
+    "automaton",
+    "library"
+  ],
+  "author": "davnpsh",
+  "license": "GPL-3.0",
   "devDependencies": {
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
-  }
+    "typescript": "^5.6.2"
+  },
+  "files": [
+    "dist"
+  ]
 }
