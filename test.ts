@@ -5,4 +5,5 @@ const expression = "ϵ";
 
 const dfa = new mDFA(expression);
 
-console.log(dfa.uDFA.cytograph());
+console.log(dfa.NFA.regexp.symbols);
+console.log(dfa.cytograph());

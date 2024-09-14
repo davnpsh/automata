@@ -183,7 +183,7 @@ export class RegExp {
    * @returns An array of unique symbols.
    */
   protected extractSymbols(): string[] {
-    const ignoreChars = ["(", ")", "|", "*", "+", "?"];
+    const ignoreChars = ["(", ")", "|", "*", "+", "?", "ϵ"];
 
     //Set to store unique symbols
     const symbolsSet = new Set<string>();
