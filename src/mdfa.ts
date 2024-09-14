@@ -3,6 +3,28 @@ import { DFA, StateD, StatesTable } from "./dfa";
 import { equalStates } from "./helper";
 import { uDFA } from "./udfa";
 
+class Identifiables {
+  public table: Map<string, Set<string>>;
+
+  constructor() {
+    this.table = new Map();
+  }
+
+  public add(label: string, identical: string) {
+    // Check if the Set for the given label already exists
+    if (!this.table.has(label)) {
+      // If not, create a new Set
+      this.table.set(label, new Set<string>());
+    }
+
+    // Get the Set for the label and add the identical element
+    const set = this.table.get(label);
+    if (set) {
+      set.add(identical);
+    }
+  }
+}
+
 export class mDFA extends DFA {
   /**
    * The uDFA used to build the mDFA.
@@ -12,6 +34,10 @@ export class mDFA extends DFA {
    * The equivalent states table converted from the uDFA.
    */
   public equivalent_states!: StatesTable;
+  /**
+   * The identifiable states of the mDFA.
+   */
+  public identifiables!: Identifiables;
 
   constructor(expression: string) {
     super(expression);
@@ -108,6 +134,8 @@ export class mDFA extends DFA {
     equivalent_states: StatesTable,
     transitions: TransitionsTable,
   ): [StatesTable, TransitionsTable] {
+    // To keep track of the identifiable states
+    this.identifiables = new Identifiables();
     // Clone, reduce and get an array from the original states table
     const new_states: Array<StateD> = Array.from(equivalent_states.table);
     //
@@ -141,6 +169,7 @@ export class mDFA extends DFA {
           const old_label: string = new_states[j].label;
 
           replaceLabel(new_label, old_label);
+          this.identifiables.add(new_label, old_label);
 
           // Delete from new states
           new_states.splice(j, 1);

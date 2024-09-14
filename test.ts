@@ -5,4 +5,4 @@ const expression = "(a|b)*abb";
 
 const dfa = new mDFA(expression);
 
-console.log(dfa.NFA.transitions.table);
+console.log(dfa.identifiables);
