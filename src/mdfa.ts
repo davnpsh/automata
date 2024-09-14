@@ -102,12 +102,14 @@ export class mDFA extends DFA {
    */
   protected equivalentStates(states: StatesTable): StatesTable {
     const new_table: StatesTable = states.clone();
+    const empty_symbol: string = this.empty_symbol;
 
     function isSignificant(state: State): boolean {
       // If it is an accept state
       if (state.accept == true) return true;
       // If it has at least 1 edge with a symbol different from epsilon
-      if (state.next[0].symbol !== "ϵ") return true;
+      if (state.next.length != 0)
+        if (state.next[0].symbol !== empty_symbol) return true;
 
       return false;
     }
