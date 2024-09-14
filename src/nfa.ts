@@ -160,4 +160,6 @@ export class NFA extends Automaton {
 
     return Array.from(reacheable_states);
   }
+
+  protected generateTransitionsTable() {}
 }

@@ -1,5 +1,5 @@
-import { State } from "./automaton";
-import { DFA, StateD, StatesTable, TransitionD, TransitionsTable } from "./dfa";
+import { State, TransitionD, TransitionsTable } from "./automaton";
+import { DFA, StateD, StatesTable } from "./dfa";
 import { equalStates } from "./helper";
 import { uDFA } from "./udfa";
 

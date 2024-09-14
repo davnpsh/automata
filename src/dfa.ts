@@ -1,81 +1,11 @@
-import { Automaton, State } from "./automaton";
+import { Automaton, State, TransitionsTable } from "./automaton";
 import { NFA } from "./nfa";
 import { equalStates } from "./helper";
-
-export interface TransitionD {
-  label: string;
-  transitions: Map<string, string>;
-}
 
 export interface StateD {
   label: string;
   states: State[];
   marked: boolean;
-}
-
-export class TransitionsTable {
-  /**
-   * The transition table of the DFA.
-   */
-  public table: Set<TransitionD>;
-
-  constructor() {
-    this.table = new Set();
-  }
-
-  /**
-   * Check if the transition table contains an entry.
-   * @param label - The label of the transition.
-   * @returns The entry or null if it doesn't exist.
-   */
-  public get(label: string): TransitionD | null {
-    for (const row of this.table) {
-      if (row.label == label) return row;
-    }
-
-    return null;
-  }
-
-  /**
-   * Check if the transition table contains an entry.
-   * @param T - The origin label of the transition.
-   * @param symbol - The symbol of the transition.
-   * @param U - The destiny label of the transition.
-   */
-  public add(T: string, symbol: string, U: string): void {
-    // Check if the entry already exists
-    let entry = this.get(T);
-
-    // If not, add the new entry
-    if (entry === null) {
-      entry = { label: T, transitions: new Map() };
-      this.table.add(entry);
-    }
-
-    // Add the new transition
-    entry.transitions.set(symbol, U);
-  }
-
-  /**
-   * Clones the transition table
-   * @returns The cloned transition table
-   */
-  public clone(): TransitionsTable {
-    const new_table: TransitionsTable = new TransitionsTable();
-
-    for (const entry of this.table) {
-      const new_transitions = new Map<string, string>(entry.transitions);
-
-      const new_entry: TransitionD = {
-        label: entry.label,
-        transitions: new_transitions,
-      };
-
-      new_table.table.add(new_entry);
-    }
-
-    return new_table;
-  }
 }
 
 export class StatesTable {

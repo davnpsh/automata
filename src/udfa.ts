@@ -1,6 +1,6 @@
-import { State } from "./automaton";
+import { State, TransitionsTable } from "./automaton";
 import { NFA } from "./nfa";
-import { DFA, StateD, StatesTable, TransitionsTable } from "./dfa";
+import { DFA, StateD, StatesTable } from "./dfa";
 import { LetterGenerator } from "./helper";
 
 export class uDFA extends DFA {
