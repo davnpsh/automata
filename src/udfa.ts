@@ -1,11 +1,11 @@
-import { State, TransitionsTable } from "./automaton";
+import { AutomatonConfig, State, TransitionsTable } from "./automaton";
 import { NFA } from "./nfa";
 import { DFA, StateD, StatesTable } from "./dfa";
 import { LetterGenerator } from "./helper";
 
 export class uDFA extends DFA {
-  constructor(expression: string) {
-    super(expression);
+  constructor(expression: string, config?: AutomatonConfig) {
+    super(expression, config);
   }
 
   /**
@@ -69,7 +69,7 @@ export class uDFA extends DFA {
     }
 
     // Important to assign before generateGraph execution!
-    this.NFA = new NFA(expression);
+    this.NFA = new NFA(expression, this.config);
 
     [this.states, this.transitions] = subset(this.NFA);
 

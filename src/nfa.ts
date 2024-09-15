@@ -1,5 +1,10 @@
 import { RegExp, SyntaxTreeNode } from "./regex";
-import { State, Automaton, TransitionsTable } from "./automaton";
+import {
+  State,
+  Automaton,
+  TransitionsTable,
+  AutomatonConfig,
+} from "./automaton";
 
 export class NFA extends Automaton {
   /**
@@ -11,8 +16,8 @@ export class NFA extends Automaton {
    */
   public transitions!: TransitionsTable;
 
-  constructor(expression: string) {
-    super(expression);
+  constructor(expression: string, config?: AutomatonConfig) {
+    super(expression, config);
     this.generateTransitionsTable();
   }
 

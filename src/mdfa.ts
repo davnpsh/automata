@@ -1,4 +1,9 @@
-import { State, TransitionD, TransitionsTable } from "./automaton";
+import {
+  AutomatonConfig,
+  State,
+  TransitionD,
+  TransitionsTable,
+} from "./automaton";
 import { DFA, StateD, StatesTable } from "./dfa";
 import { equalStates } from "./helper";
 import { uDFA } from "./udfa";
@@ -39,8 +44,8 @@ export class mDFA extends DFA {
    */
   public identifiables!: Identifiables;
 
-  constructor(expression: string) {
-    super(expression);
+  constructor(expression: string, config?: AutomatonConfig) {
+    super(expression, config);
   }
 
   /**
@@ -50,7 +55,7 @@ export class mDFA extends DFA {
    */
   protected build(expression: string): [State, State[]] {
     // Build from uDFA
-    const udfa = new uDFA(expression);
+    const udfa = new uDFA(expression, this.config);
 
     // Reference base NFA
     this.NFA = udfa.NFA;

@@ -131,7 +131,7 @@ export class TransitionsTable {
   }
 }
 
-interface AutomatonConfig {
+export interface AutomatonConfig {
   /**
    * Custom epsilon symbol
    */
@@ -148,12 +148,18 @@ export abstract class Automaton {
    */
   public accept_states: State[];
   /**
+   * The automaton configuration
+   */
+  protected config: AutomatonConfig | undefined;
+  /**
    * The epsilon symbol to be used in the automaton
    */
   protected empty_symbol!: string;
 
   constructor(data: string, config?: AutomatonConfig) {
-    this.parseConfig(config);
+    this.config = config;
+
+    this.parseConfig();
 
     [this.initial_state, this.accept_states] = this.build(data);
 
@@ -171,9 +177,9 @@ export abstract class Automaton {
    * Parse the automaton configuration
    * @param config - The configuration to be parsed
    */
-  protected parseConfig(config?: AutomatonConfig): void {
+  protected parseConfig(): void {
     // Custom epsilon symbol
-    this.empty_symbol = config?.empty_symbol || "ϵ";
+    this.empty_symbol = this.config?.empty_symbol || "ϵ";
   }
 
   /**

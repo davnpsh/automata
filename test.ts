@@ -1,9 +1,9 @@
 import { NFA } from "./src/nfa";
 import { mDFA } from "./src/mdfa";
 
-const expression = "(a|b)*abb";
+const expression = "a|&";
 
-const dfa = new mDFA(expression);
+const automata = new mDFA(expression, { empty_symbol: "&" });
 
-console.log(dfa.transitions);
-console.log(dfa.cytograph());
+console.log(automata.transitions);
+console.log(automata.cytograph());
