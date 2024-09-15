@@ -1,9 +1,10 @@
 import { NFA } from "./src/nfa";
 import { mDFA } from "./src/mdfa";
 
-const expression = "a|&";
+const expression = "abbbbb";
 
-const automata = new mDFA(expression, { empty_symbol: "&" });
+const automata = new mDFA(expression);
 
-console.log(automata.transitions);
-console.log(automata.cytograph());
+const string = "baaa";
+
+console.log(automata.test(string).routes);

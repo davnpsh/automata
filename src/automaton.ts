@@ -263,6 +263,15 @@ export abstract class Automaton {
    */
   public test(string: string) {
     let accept: boolean = false;
+    const empty_symbol: string = this.empty_symbol;
+
+    if (string.includes(empty_symbol)) {
+      throw new Error(
+        "String cannot contain character used for empty string on regular expression (" +
+          empty_symbol +
+          ").",
+      );
+    }
 
     const routes: Array<Array<Transition>> = [];
     /**
@@ -283,17 +292,21 @@ export abstract class Automaton {
       if (sub.length == 0 || state.next.length == 0) {
         routes.push(path);
         // Mark the flag as string accepted
-        accept = true;
+        if (state.accept && sub.length == 0) accept = true;
         return;
       }
 
       for (const edge of state.next) {
         // If there is somewhere to go
-        if (edge.symbol == sub[0] || edge.symbol == "ϵ") {
+        if (edge.symbol == sub[0] || edge.symbol == empty_symbol) {
           // Complete the rest of the transition
           transition.symbol = edge.symbol;
-          const newSub = edge.symbol == "ϵ" ? sub : sub.slice(1);
+          const newSub = edge.symbol == empty_symbol ? sub : sub.slice(1);
           traverse(edge.to, newSub, path.slice());
+
+          // If there is nowhere no go
+        } else {
+          routes.push(path);
         }
       }
     }
