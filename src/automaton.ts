@@ -296,18 +296,21 @@ export abstract class Automaton {
         return;
       }
 
+      let dead_end = true;
       for (const edge of state.next) {
         // If there is somewhere to go
         if (edge.symbol == sub[0] || edge.symbol == empty_symbol) {
+          // There is
+          dead_end = false;
           // Complete the rest of the transition
           transition.symbol = edge.symbol;
           const newSub = edge.symbol == empty_symbol ? sub : sub.slice(1);
           traverse(edge.to, newSub, path.slice());
-
-          // If there is nowhere no go
-        } else {
-          routes.push(path);
         }
+      }
+      if (dead_end) {
+        routes.push(path);
+        return;
       }
     }
 
