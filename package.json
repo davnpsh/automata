@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "ts-node test.ts",
-    "publish": "npm run build && npm publish"
+    "publish": "tsc && npm publish"
   },
   "keywords": [
     "dfa",
