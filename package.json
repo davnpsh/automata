@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "ts-node test.ts"
+    "test": "ts-node test.ts",
+    "publish": "npm run build && npm publish"
   },
   "keywords": [
     "dfa",
