@@ -1,4 +1,32 @@
 /**
+ * Test result definition
+ */
+interface TestResult {
+  /**
+   * If the string is accepted
+   */
+  accept: boolean;
+  /**
+   * Routes
+   */
+  routes: Array<Route>;
+}
+
+/**
+ * Route definition
+ */
+interface Route {
+  /**
+   * If the route is valid
+   */
+  valid: boolean;
+  /**
+   * Transitions of the route
+   */
+  transitions: Array<Transition>;
+}
+
+/**
  * Transition definition
  */
 interface Transition {
@@ -261,8 +289,7 @@ export abstract class Automaton {
    * @param string - The string to be tested
    * @returns The set of routes to accept states
    */
-  public test(string: string) {
-    let accept: boolean = false;
+  public test(string: string): TestResult {
     const empty_symbol: string = this.empty_symbol;
 
     if (string.includes(empty_symbol)) {
@@ -273,7 +300,7 @@ export abstract class Automaton {
       );
     }
 
-    const routes: Array<Array<Transition>> = [];
+    const result: TestResult = { accept: false, routes: [] };
     /**
      * @param state - The state to be tested
      * @param sub - The string to be tested
@@ -281,22 +308,14 @@ export abstract class Automaton {
     function traverse(
       state: State,
       sub: string,
-      path: Array<Transition> = [],
+      route: Route = { valid: false, transitions: [] },
     ): void {
       let transition: Transition = { from: state };
       // Add itself to the path
-      path.push(transition);
-
-      // If there is no more string left to check
-      // or there are no more states to go to
-      if (sub.length == 0 || state.next.length == 0) {
-        routes.push(path);
-        // Mark the flag as string accepted
-        if (state.accept && sub.length == 0) accept = true;
-        return;
-      }
+      route.transitions.push(transition);
 
       let dead_end = true;
+
       for (const edge of state.next) {
         // If there is somewhere to go
         if (edge.symbol == sub[0] || edge.symbol == empty_symbol) {
@@ -304,18 +323,28 @@ export abstract class Automaton {
           dead_end = false;
           // Complete the rest of the transition
           transition.symbol = edge.symbol;
-          const newSub = edge.symbol == empty_symbol ? sub : sub.slice(1);
-          traverse(edge.to, newSub, path.slice());
+          const newSub: string =
+            edge.symbol == empty_symbol ? sub : sub.slice(1);
+
+          const newRoute: Route = {
+            valid: route.valid,
+            transitions: [...route.transitions],
+          };
+
+          traverse(edge.to, newSub, newRoute);
         }
       }
+
       if (dead_end) {
-        routes.push(path);
+        result.routes.push(route);
+        // Mark the flag as string accepted
+        if (state.accept && sub.length == 0) route.valid = result.accept = true;
         return;
       }
     }
 
     traverse(this.initial_state, string);
 
-    return { accept: accept, routes: routes };
+    return result;
   }
 }
