@@ -180,6 +180,9 @@ export class mDFA extends DFA {
 
           // Delete from new states
           new_states.splice(j, 1);
+
+          // Start over from the previous states
+          j--;
         }
       }
     }
