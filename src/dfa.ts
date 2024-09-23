@@ -109,7 +109,7 @@ export abstract class DFA extends Automaton {
 
       // Much better method to avoid null values
       entry.transitions.forEach((label, symbol) => {
-        const next_state = this.lookUp(label, new_states) as State;
+        const next_state = this.lookUp(label as string, new_states) as State;
         state.addNext(symbol, next_state);
       });
     }

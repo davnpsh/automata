@@ -90,7 +90,7 @@ class Edge {
 
 export interface TransitionD {
   label: string;
-  transitions: Map<string, string>;
+  transitions: Map<string, string | string[]>;
 }
 
 export class TransitionsTable {
@@ -122,7 +122,12 @@ export class TransitionsTable {
    * @param symbol - The symbol of the transition.
    * @param U - The destiny label of the transition.
    */
-  public add(T: string, symbol?: string, U?: string): void {
+  public add(
+    T: string,
+    symbol?: string,
+    U?: string,
+    empty_symbol?: string,
+  ): void {
     // Check if the entry already exists
     let entry = this.get(T);
 
@@ -133,8 +138,16 @@ export class TransitionsTable {
     }
 
     if (symbol && U)
-      // Add the new transition
-      entry.transitions.set(symbol, U);
+      if (empty_symbol && symbol === empty_symbol) {
+        if (!entry.transitions.has(symbol)) {
+          entry.transitions.set(symbol, []); // Initialize as an empty array
+        }
+        // Push U into the array
+        (entry.transitions.get(symbol) as string[]).push(U);
+      } else {
+        // Just add the new transition
+        entry.transitions.set(symbol, U);
+      }
   }
 
   /**
@@ -145,7 +158,9 @@ export class TransitionsTable {
     const new_table: TransitionsTable = new TransitionsTable();
 
     for (const entry of this.table) {
-      const new_transitions = new Map<string, string>(entry.transitions);
+      const new_transitions = new Map<string, string | string[]>(
+        entry.transitions,
+      );
 
       const new_entry: TransitionD = {
         label: entry.label,

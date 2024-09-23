@@ -177,6 +177,7 @@ export class NFA extends Automaton {
   }
 
   protected generateTransitionsTable(): void {
+    const empty_symbol = this.empty_symbol;
     this.transitions = new TransitionsTable();
     const visited = new Set();
 
@@ -194,6 +195,7 @@ export class NFA extends Automaton {
           state.label.toString(),
           edge.symbol,
           edge.to.label.toString(),
+          empty_symbol,
         );
 
         DFS(transitions, edge.to);
