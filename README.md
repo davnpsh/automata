@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/badge/package%20-%20red?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/@davnpsh/automata)
 
 
-This npm package provides a way to create and manipulate finite automata based on regular expressions.
+This npm package provides a way to create and manipulate finite automatons based on regular expressions.
 
 ## Install
 
@@ -13,7 +13,7 @@ npm install @davnpsh/automata
 
 ## Usage
 
-The NFA (Nondeterministic Finite Automaton) object allows you to create an NFA from a regular expression string.
+The NFA (Nondeterministic Finite Automaton) object allows you to create a NFA from a regular expression string.
 
 ```js
 import { NFA } from '@davnpsh/automata';
@@ -21,7 +21,7 @@ import { NFA } from '@davnpsh/automata';
 const nfa = new NFA('a(b|c)*');
 ```
 
-You can also create an deterministic automaton from a regular expression string.
+You can also create a DFA from a regular expression string.
 
 ```js
 import { uDFA, mDFA } from '@davnpsh/automata';
