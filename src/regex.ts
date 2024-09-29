@@ -58,6 +58,7 @@ export class RegExp {
         tempNode: SyntaxTreeNode,
         sub: SyntaxTreeNode,
         parts: SyntaxTreeNode[] = [];
+      let lastOperator: string | null = null;
 
       if (text.length === 0) {
         throw new Error("Empty input");
@@ -123,53 +124,63 @@ export class RegExp {
             sub.begin -= 1;
             sub.end += 1;
             parts.push(sub); // Add parsed subexpression to parts
-          } else if (text[i] === "*") {
-            // Handle Kleene star operator
+            lastOperator = null; // Reset lastOperator after a group
+          } else if (text[i] === "*" || text[i] === "+" || text[i] === "?") {
+            // Handle Kleene or positive enclosure and optional
+            //
             if (parts.length === 0) {
-              throw new Error("Unexpected * at " + (begin + i) + ".");
+              throw new Error(`Unexpected ${text[i]} at ${begin + i}.`);
             }
-            tempNode = {
-              begin: parts[parts.length - 1].begin,
-              end: parts[parts.length - 1].end + 1,
-            };
-            tempNode.type = "star";
-            tempNode.sub = parts[parts.length - 1];
-            parts[parts.length - 1] = tempNode; // Replace last part with star node
-          } else if (text[i] === "+") {
-            // Handle plus operator
-            if (parts.length === 0) {
-              throw new Error("Unexpected + at " + (begin + i) + ".");
+
+            const lastPart = parts[parts.length - 1];
+
+            // Check for invalid combinations
+            if (lastOperator !== null) {
+              if (lastOperator === "?" && text[i] === "?") {
+                throw new Error(`Invalid '?' after '?' at ${begin + i}.`);
+              }
+              if (
+                (text[i] === "*" || text[i] === "+") &&
+                (lastOperator === "*" ||
+                  lastOperator === "+" ||
+                  lastOperator === "?")
+              ) {
+                throw new Error(
+                  `Invalid '${text[i]}' after '${lastOperator}' at ${begin + i}.`,
+                );
+              }
             }
+
             tempNode = {
-              begin: parts[parts.length - 1].begin,
-              end: parts[parts.length - 1].end + 1,
+              begin: lastPart.begin,
+              end: lastPart.end + 1,
             };
-            tempNode.type = "plus";
-            tempNode.sub = parts[parts.length - 1];
-            parts[parts.length - 1] = tempNode; // Replace last part with plus node
-          } else if (text[i] === "?") {
-            // Handle question mark operator
-            if (parts.length === 0) {
-              throw new Error("Unexpected + at " + (begin + i) + ".");
+
+            if (text[i] === "*") {
+              tempNode.type = "star";
+            } else if (text[i] === "+") {
+              tempNode.type = "plus";
+            } else {
+              // text[i] === "?"
+              tempNode.type = "optional";
             }
-            tempNode = {
-              begin: parts[parts.length - 1].begin,
-              end: parts[parts.length - 1].end + 1,
-            };
-            tempNode.type = "optional";
-            tempNode.sub = parts[parts.length - 1];
-            parts[parts.length - 1] = tempNode; // Replace last part with optional node
+
+            tempNode.sub = lastPart;
+            parts[parts.length - 1] = tempNode;
+            lastOperator = text[i];
           } else if (text[i] === empty_symbol) {
             // Handle epsilon (empty string)
             tempNode = { begin: begin + i, end: begin + i + 1 };
             tempNode.type = "empty";
             parts.push(tempNode); // Add empty node to parts
+            lastOperator = null;
           } else {
             // Handle literal characters
             tempNode = { begin: begin + i, end: begin + i + 1 };
             tempNode.type = "text";
             tempNode.text = text[i];
             parts.push(tempNode); // Add text node to parts
+            lastOperator = null;
           }
         }
         if (parts.length === 1) {
