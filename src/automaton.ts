@@ -310,9 +310,22 @@ export abstract class Automaton {
     if (string.includes(empty_symbol)) {
       throw new Error(
         "String cannot contain character used for empty string on regular expression (" +
-          empty_symbol +
-          ").",
+        empty_symbol +
+        ").",
       );
+    }
+
+    // Define the symbols to reject
+    const rejectedSymbols = ['(', ')', '|', '+', '*'];
+
+    // Check if the string contains any rejected symbols
+    for (const symbol of rejectedSymbols) {
+      if (string.includes(symbol)) {
+        throw new Error(
+          "String cannot contain the following characters: " +
+          rejectedSymbols.join(', ') + "."
+        );
+      }
     }
 
     const result: TestResult = { accept: false, routes: [] };

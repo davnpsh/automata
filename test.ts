@@ -6,4 +6,7 @@ const expression = "a+b";
 
 const automata = new mDFA(expression);
 
+const test = automata.test("*")
+
 console.log(automata.transitions.table);
+console.log(test)
