@@ -87,6 +87,9 @@ export class RegExp {
             stack += 1; // Increment stack on opening bracket
           } else if (text[i] === ")") {
             stack -= 1; // Decrement stack on closing bracket
+            if (stack < 0) {
+              throw new Error("Unmatched closing parenthesis at position " + i + ".");
+            }
           }
         }
         if (parts.length === 1) {
@@ -189,6 +192,12 @@ export class RegExp {
         node.type = "cat"; // Set type to concatenation
         node.parts = parts; // Set parts to the parsed parts
       }
+
+      // After parsing the entire expression, check if any unbalanced parentheses remain
+      if (stack > 0) {
+        throw new Error("Unmatched opening parenthesis at position " + end + ".");
+      }
+
       return node; // Return the constructed node
     }
 
