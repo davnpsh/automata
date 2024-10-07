@@ -1,6 +1,6 @@
 {
   "name": "@davnpsh/automata",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Automaton generator from regular expressions",
   "main": "dist/index.js",
   "scripts": {
